@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Clientes</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+        }
+        /* Barra do topo */
+        .header-topo {
+            background-color: #ffffff;
+            padding: 15px 30px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        .btn-logout {
+            background-color: #ef4444;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .btn-logout:hover { background-color: #dc2626; }
+        
+        /* Conteúdo */
+        .container { padding: 40px; max-width: 800px; margin: 0 auto; }
+        h1 { color: #1f2937; }
+        
+        /* Tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { background-color: #f3f4f6; color: #374151; font-weight: 600; }
+        
+        /* Botão Excluir */
+        .btn-excluir {
+            background-color: transparent;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-excluir:hover { background-color: #fee2e2; }
+    </style>
+</head>
+<body>
+
+    <header class="header-topo">
+        <a href="/logout" class="btn-logout">Sair do Sistema 🚪</a>
+    </header>
+
+    <div class="container">
+        <h1>Gerenciamento de Clientes 👥</h1>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-clientes">
+                <!-- Os clientes do banco vão aparecer aqui via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Função para buscar os clientes no servidor e desenhar na tela
+        async function carregarClientes() {
+            const resposta = await fetch('/api/clientes');
+            const clientes = await resposta.json();
+            const tabela = document.getElementById('tabela-clientes');
+            
+            tabela.innerHTML = ''; // Limpa a tabela
+            
+            clientes.forEach(cliente => {
+                tabela.innerHTML += `
+                    <tr>
+                        <td>${cliente.id}</td>
+                        <td>${cliente.nome}</td>
+                        <td>${cliente.email}</td>
+                        <td>
+                            <form action="/clientes/excluir" method="POST" onsubmit="return confirmarExclusao()">
+                                <input type="hidden" name="id" value="${cliente.id}">
+                                <button type="submit" class="btn-excluir">Excluir 🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function confirmarExclusao() {
+            return confirm("Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.");
+        }
+
+        // Carrega a lista assim que a página abre
+        carregarClientes();
+    </script>
+</body>
+</html>
